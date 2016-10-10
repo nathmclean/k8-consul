@@ -1,0 +1,46 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: consul-1
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: consul
+        member: consul-1
+    spec:
+      securityContext:
+        fsGroup: 1000
+      containers:
+        - name: consul
+          image: "consul:v0.7.0"
+          args:
+            - "agent"
+            - "-data-dir=/var/lib/consul"
+            - "-server"
+            - "-bootstrap-expect=3"
+            - "-bind=0.0.0.0"
+            - "-advertise=10.0.0.61"
+            - "-client=0.0.0.0"
+          volumeMounts:
+            - mountPath: /var/lib/consul
+              name: consul-1
+          ports:
+            - containerPort: 8500
+            - containerPort: 8400
+            - containerPort: 53
+              protocol: "UDP"
+            - containerPort: 443
+            - containerPort: 8080
+            - containerPort: 8301
+              protocol: "UDP"
+            - containerPort: 8302
+              protocol: "UDP"
+            - containerPort: 8600
+              protocol: "UDP"
+            - containerPort: 8300
+      volumes:
+          - hostPath:
+              path: /data/consul-1
+            name: consul-1
